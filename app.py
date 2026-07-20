@@ -14,6 +14,8 @@ import json
 from flask import (Flask, render_template, request,
                    redirect, url_for, jsonify, flash)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
 app.secret_key = "segmentiq-secret-2024"
 
@@ -46,12 +48,12 @@ def get_kmeans():
     if "kmeans" not in _cache:
         from utils.clustering import fit_kmeans
         import joblib
-        import os
         pipe = get_pipeline()
         kmeans_data = fit_kmeans(pipe["X_scaled"])
         
-        # Load the scaler to inverse transform centroids
-        scaler = joblib.load(os.path.join("models", "scaler.pkl"))
+        # Load the scaler to inverse transform centroids (use absolute path)
+        scaler_path = os.path.join(BASE_DIR, "models", "scaler.pkl")
+        scaler = joblib.load(scaler_path)
         centroids_orig = scaler.inverse_transform(kmeans_data["centroids"])
         kmeans_data["centroids_orig"] = centroids_orig.tolist()
         
