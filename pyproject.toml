@@ -1,0 +1,2 @@
+[tool.vercel]
+entrypoint = "Customer-Segmentation-Dashboard.app:app"
