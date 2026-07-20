@@ -12,7 +12,10 @@ import sqlite3
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH  = os.path.join(BASE_DIR, "models", "customers.db")
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/customers.db"
+else:
+    DB_PATH = os.path.join(BASE_DIR, "models", "customers.db")
 
 
 # ─── Cluster name mapping ─────────────────────────────────────────────────────
