@@ -144,7 +144,7 @@ def scale_features(df: pd.DataFrame) -> tuple[np.ndarray, StandardScaler]:
 
     # Save scaler so the /predict route can use it for new customers
     os.makedirs(MODEL_DIR, exist_ok=True)
-    joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
+    # joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
 
     return X_scaled, scaler
 
