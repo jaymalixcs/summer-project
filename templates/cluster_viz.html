@@ -15,7 +15,7 @@
   <!-- Main cluster scatter -->
   <div class="chart-container mb-4" data-aos="fade-up">
     <div class="chart-title">Customer Segments — Annual Income vs Spending Score</div>
-    <div id="chart-clusters" data-chart-json='{{ charts.clusters }}' style="height:500px;"></div>
+    <div id="chart-clusters" data-chart-json='{{ charts.clusters | safe }}' style="height:500px;"></div>
   </div>
 
   <!-- Cluster size + radar -->
@@ -23,13 +23,13 @@
     <div class="col-md-6" data-aos="fade-up">
       <div class="chart-container h-100">
         <div class="chart-title">Customer Count per Cluster</div>
-        <div id="chart-sizes" data-chart-json='{{ charts.cluster_sizes }}' style="height:300px;"></div>
+        <div id="chart-sizes" data-chart-json='{{ charts.cluster_sizes | safe }}' style="height:300px;"></div>
       </div>
     </div>
     <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
       <div class="chart-container h-100">
         <div class="chart-title">Cluster Feature Comparison (Radar)</div>
-        <div id="chart-radar" data-chart-json='{{ charts.radar }}' style="height:300px;"></div>
+        <div id="chart-radar" data-chart-json='{{ charts.radar | safe }}' style="height:300px;"></div>
       </div>
     </div>
   </div>
