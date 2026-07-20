@@ -120,7 +120,7 @@ def fit_kmeans(X_scaled: np.ndarray, k: int = OPTIMAL_K) -> dict:
 
     # Persist model so /predict route can reuse it
     os.makedirs(MODEL_DIR, exist_ok=True)
-    joblib.dump(km, os.path.join(MODEL_DIR, "kmeans_model.pkl"))
+    # joblib.dump(km, os.path.join(MODEL_DIR, "kmeans_model.pkl"))
 
     return {
         "labels"     : labels,
