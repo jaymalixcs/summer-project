@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Dataset Overview — SegmentIQ{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container-xl">
+    <div class="breadcrumb-custom">
+      <a href="{{ url_for('home') }}">Home</a><span>/</span><span>Dataset</span>
+    </div>
+    <div class="badge-violet mb-3">Step 1</div>
+    <h1>📋 Dataset <span class="gradient-text">Overview</span></h1>
+    <p>The Mall Customers dataset — source, features, and why it's ideal for segmentation.</p>
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+
+  <!-- Key Stats -->
+  <div class="row g-4 mb-5">
+    <div class="col-6 col-md-3" data-aos="fade-up">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-violet">👥</div>
+        <div class="stat-value gradient-text" data-count="{{ info.shape[0] }}">0</div>
+        <div class="stat-label">Total Customers</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="80">
+      <div class="stat-card stat-card-teal">
+        <div class="stat-icon stat-icon-teal">📂</div>
+        <div class="stat-value" style="color:var(--teal);" data-count="{{ info.shape[1] }}">0</div>
+        <div class="stat-label">Features (Columns)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="160">
+      <div class="stat-card stat-card-coral">
+        <div class="stat-icon stat-icon-coral">🔍</div>
+        <div class="stat-value" style="color:var(--coral);" data-count="{{ info.null_counts.values() | sum }}">0</div>
+        <div class="stat-label">Missing Values</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="240">
+      <div class="stat-card stat-card-gold">
+        <div class="stat-icon stat-icon-gold">📋</div>
+        <div class="stat-value" style="color:var(--gold);" data-count="{{ info.duplicates }}">0</div>
+        <div class="stat-label">Duplicate Rows</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset Info + Feature Table -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6" data-aos="fade-up">
+      <div class="glass-card h-100">
+        <div class="section-title">📌 About the Dataset</div>
+        <div class="section-divider"></div>
+        <p style="font-size:0.9rem;line-height:1.9;color:var(--text-secondary);">
+          The <strong style="color:var(--text-primary);">Mall Customers dataset</strong> is a widely-used
+          dataset in customer segmentation research. It was collected from a shopping mall's membership cards
+          and contains demographic and behavioural data of <strong style="color:var(--violet-light);">200 customers</strong>.
+        </p>
+        <p style="font-size:0.9rem;line-height:1.9;color:var(--text-secondary);margin-top:12px;">
+          <strong style="color:var(--text-primary);">Source:</strong> Kaggle — Mall Customer Segmentation Data<br>
+          <strong style="color:var(--text-primary);">Size:</strong> 200 rows × 5 columns<br>
+          <strong style="color:var(--text-primary);">Format:</strong> CSV<br>
+          <strong style="color:var(--text-primary);">Target:</strong> Unsupervised (no class label)
+        </p>
+        <div class="info-box mt-4">
+          <strong>Why this dataset?</strong><br>
+          It has clear natural clusters when Annual Income and Spending Score are plotted together —
+          making it ideal for demonstrating K-Means clustering in an educational context.
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+      <div class="glass-card h-100">
+        <div class="section-title">🗂️ Feature Descriptions</div>
+        <div class="section-divider"></div>
+        <div class="table-wrapper">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Column</th><th>Type</th><th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><span class="badge-violet">CustomerID</span></td><td>Integer</td><td>Unique identifier — dropped before clustering</td></tr>
+              <tr><td><span class="badge-teal">Gender</span></td><td>String</td><td>Male or Female — encoded as binary</td></tr>
+              <tr><td><span class="badge-coral">Age</span></td><td>Integer</td><td>Customer age in years (18–70)</td></tr>
+              <tr><td><span class="badge-gold">Annual Income</span></td><td>Integer</td><td>Annual income in thousands of dollars (15–137)</td></tr>
+              <tr><td><span class="badge-violet">Spending Score</span></td><td>Integer</td><td>Mall-assigned score 1–100 based on purchase behaviour</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="success-box mt-4">
+          <strong>Clustering Features Used:</strong>
+          Annual Income (k$) and Spending Score (1–100) — after StandardScaler normalisation.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Types & Null Check -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-6" data-aos="fade-up">
+      <div class="glass-card">
+        <div class="section-title">🔤 Data Types</div>
+        <div class="section-divider"></div>
+        <div class="table-wrapper">
+          <table class="table-custom">
+            <thead><tr><th>Column</th><th>Data Type</th><th>Category</th></tr></thead>
+            <tbody>
+              {% for col, dtype in info.dtypes.items() %}
+              <tr>
+                <td>{{ col }}</td>
+                <td><span class="badge-teal">{{ dtype }}</span></td>
+                <td style="color:var(--text-muted);font-size:0.82rem;">{{ "Categorical" if dtype == "object" else "Numerical" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+      <div class="glass-card">
+        <div class="section-title">🔍 Missing Value Check</div>
+        <div class="section-divider"></div>
+        <div class="table-wrapper">
+          <table class="table-custom">
+            <thead><tr><th>Column</th><th>Missing Count</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for col, count in info.null_counts.items() %}
+              <tr>
+                <td>{{ col }}</td>
+                <td>{{ count }}</td>
+                <td>
+                  {% if count == 0 %}
+                  <span class="badge-teal">✅ Clean</span>
+                  {% else %}
+                  <span class="badge-coral">⚠️ Has Nulls</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="success-box mt-3" style="margin:16px 0 0;">
+          ✅ No missing values found. Dataset is complete.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dataset Preview -->
+  <div class="glass-card mb-5" data-aos="fade-up">
+    <div class="section-title">👁️ Dataset Preview — First 5 Rows</div>
+    <div class="section-divider"></div>
+    <div class="table-wrapper" style="overflow-x:auto;">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            {% for col in head[0].keys() %}<th>{{ col }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in head %}
+          <tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Last 5 rows -->
+  <div class="glass-card" data-aos="fade-up">
+    <div class="section-title">👁️ Dataset Preview — Last 5 Rows</div>
+    <div class="section-divider"></div>
+    <div class="table-wrapper" style="overflow-x:auto;">
+      <table class="table-custom">
+        <thead>
+          <tr>{% for col in tail[0].keys() %}<th>{{ col }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+          {% for row in tail %}
+          <tr>{% for val in row.values() %}<td>{{ val }}</td>{% endfor %}</tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Next Step -->
+  <div class="text-center mt-5">
+    <a href="{{ url_for('eda') }}" class="btn-primary-custom">
+      Next: EDA Workflow <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+</div>
+{% endblock %}

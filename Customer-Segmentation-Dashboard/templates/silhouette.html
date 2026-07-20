@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Silhouette Score — SegmentIQ{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container-xl">
+    <div class="breadcrumb-custom"><a href="{{ url_for('home') }}">Home</a><span>/</span><span>Silhouette Score</span></div>
+    <div class="badge-violet mb-3">Step 7</div>
+    <h1>📉 Silhouette <span class="gradient-text">Score</span></h1>
+    <p>A quantitative measure of clustering quality — validating our choice of K=5.</p>
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+  <div class="row g-4">
+    <div class="col-lg-5" data-aos="fade-up">
+      <div class="glass-card h-100">
+        <div class="section-title">❓ What is the Silhouette Score?</div>
+        <div class="section-divider"></div>
+        <p style="font-size:0.9rem;line-height:1.9;color:var(--text-secondary);">
+          The Silhouette Score measures how similar each customer is to its own cluster
+          compared to other clusters. It ranges from <strong style="color:var(--coral);">-1 (bad)</strong>
+          to <strong style="color:var(--teal);">+1 (perfect)</strong>.
+        </p>
+        <div style="background:rgba(108,99,255,0.08);border-radius:12px;padding:24px;margin:16px 0;text-align:center;">
+          <div style="font-size:1.6rem;font-family:'Courier New',monospace;color:var(--violet-light);">
+            s(i) = (b − a) / max(a, b)
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:10px;">
+            a = mean intra-cluster distance &nbsp;·&nbsp; b = mean nearest-cluster distance
+          </div>
+        </div>
+        <div class="row g-2 mt-2">
+          <div class="col-6">
+            <div style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:12px;text-align:center;">
+              <div style="color:var(--teal);font-size:1.2rem;font-weight:800;">s(i) > 0</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Well clustered</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:8px;padding:12px;text-align:center;">
+              <div style="color:var(--coral);font-size:1.2rem;font-weight:800;">s(i) < 0</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">Misclassified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7" data-aos="fade-up" data-aos-delay="100">
+      <div class="glass-card mb-4">
+        <div class="section-title">💻 Code</div>
+        <div class="section-divider"></div>
+        <div class="code-block">
+          <span class="code-lang-badge">Python</span>
+          <span class="line-number">1</span>  <span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> silhouette_score<br>
+          <span class="line-number">2</span>  <br>
+          <span class="line-number">3</span>  scores = []<br>
+          <span class="line-number">4</span>  <span class="keyword">for</span> k <span class="keyword">in</span> <span class="function">range</span>(<span class="number">2</span>, <span class="number">11</span>):<br>
+          <span class="line-number">5</span>  &nbsp;&nbsp;&nbsp;&nbsp;km = <span class="class-name">KMeans</span>(n_clusters=k, random_state=<span class="number">42</span>)<br>
+          <span class="line-number">6</span>  &nbsp;&nbsp;&nbsp;&nbsp;labels = km.<span class="function">fit_predict</span>(X_scaled)<br>
+          <span class="line-number">7</span>  &nbsp;&nbsp;&nbsp;&nbsp;score = <span class="function">silhouette_score</span>(X_scaled, labels)<br>
+          <span class="line-number">8</span>  &nbsp;&nbsp;&nbsp;&nbsp;scores.<span class="function">append</span>(score)
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Silhouette Score vs Number of Clusters</div>
+        <div id="chart-sil" data-chart-json='{{ chart_json }}' style="height:300px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Table -->
+  <div class="glass-card mt-4 mb-4" data-aos="fade-up">
+    <div class="section-title">📊 Silhouette Scores Table</div>
+    <div class="section-divider"></div>
+    <div class="table-wrapper">
+      <table class="table-custom">
+        <thead><tr><th>k</th><th>Silhouette Score</th><th>Quality</th></tr></thead>
+        <tbody>
+          {% for i in range(sil_data.k_values | length) %}
+          {% set k = sil_data.k_values[i] %}
+          {% set score = sil_data.scores[i] %}
+          <tr>
+            <td>{{ k }}</td>
+            <td style="color:{% if score > 0.4 %}var(--teal){% elif score > 0.25 %}var(--gold){% else %}var(--coral){% endif %};">
+              {{ score }}
+            </td>
+            <td>
+              {% if score > 0.4 %}
+              <span class="badge-teal">Excellent</span>
+              {% elif score > 0.25 %}
+              <span class="badge-gold">Good</span>
+              {% else %}
+              <span class="badge-coral">Fair</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="success-box mt-3">
+      <strong>Combined with the Elbow Method:</strong>
+      K=5 provides the best balance of compactness and separation.
+      <span class="badge-teal">Final K = 5</span>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <a href="{{ url_for('clustering') }}" class="btn-primary-custom">
+      Next: K-Means Clustering <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inject zip into Jinja2 context is not possible — we use index-based approach
+// Chart is rendered by main.js initPlotlyCharts()
+</script>
+{% endblock %}
