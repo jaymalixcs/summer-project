@@ -46,7 +46,8 @@ def _to_rgba(color: str, alpha: float) -> str:
 
 def _fig_to_json(fig) -> str:
     """Convert a Plotly figure to a JSON string for template embedding."""
-    return fig.to_json()
+    # Keep NumPy-backed traces as JSON arrays for the Plotly.js browser bundle.
+    return fig.to_json(engine="json")
 
 
 import plotly

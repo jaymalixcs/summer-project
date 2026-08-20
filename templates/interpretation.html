@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Cluster Interpretation — SegmentIQ{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container-xl">
+    <div class="breadcrumb-custom"><a href="{{ url_for('home') }}">Home</a><span>/</span><span>Interpretation</span></div>
+    <div class="badge-violet mb-3">Step 9</div>
+    <h1>🧠 Cluster <span class="gradient-text">Interpretation</span></h1>
+    <p>What does each customer segment mean in business terms?</p>
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+
+  <!-- Overview grid -->
+  <div class="row g-4 mb-5">
+    {% for cid, profile in profiles.items() %}
+    {% set stat = summary[cid] %}
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ cid * 80 }}">
+      <div class="cluster-card cluster-card-{{ cid }}">
+        <div class="d-flex align-items-start gap-4">
+          <div>
+            <span class="cluster-icon">{{ profile.icon }}</span>
+          </div>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+              <span class="badge-violet">Cluster {{ cid }}</span>
+              <span class="badge-teal">{{ stat.size }} customers ({{ stat.pct }}%)</span>
+            </div>
+            <div class="cluster-name">{{ profile.name }}</div>
+            <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">{{ profile.persona }}</p>
+
+            <!-- Stats mini row -->
+            <div class="d-flex gap-3 flex-wrap mb-3">
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Income</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">{{ profile.income }}</div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Spending</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">{{ profile.spending }}</div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Age Group</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">{{ profile.age_group }}</div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Avg Income</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">${{ stat.mean_income }}k</div>
+              </div>
+              <div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Avg Score</div>
+                <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">{{ stat.mean_spending }}</div>
+              </div>
+            </div>
+
+            <!-- Behaviour list -->
+            <div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Behaviour Patterns</div>
+            {% for b in profile.behavior %}
+            <div class="d-flex gap-2 mb-1">
+              <span style="color:var(--violet-light);flex-shrink:0;">▸</span>
+              <span style="font-size:0.84rem;color:var(--text-secondary);">{{ b }}</span>
+            </div>
+            {% endfor %}
+
+            <!-- Business meaning -->
+            <div class="info-box mt-3" style="font-size:0.83rem;">
+              <strong>Business Significance:</strong> {{ profile.business_meaning }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Comparative table -->
+  <div class="glass-card mb-5" data-aos="fade-up">
+    <div class="section-title">📊 Segment Comparison Table</div>
+    <div class="section-divider"></div>
+    <div class="table-wrapper" style="overflow-x:auto;">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>Cluster</th><th>Name</th><th>Income</th><th>Spending</th>
+            <th>Age Group</th><th>Size</th><th>Avg Income</th><th>Avg Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cid, profile in profiles.items() %}
+          {% set stat = summary[cid] %}
+          <tr>
+            <td>{{ profile.icon }} {{ cid }}</td>
+            <td><strong>{{ profile.name }}</strong></td>
+            <td>
+              <span class="badge-{{ 'teal' if profile.income == 'High' else 'coral' if profile.income == 'Low' else 'gold' }}">
+                {{ profile.income }}
+              </span>
+            </td>
+            <td>
+              <span class="badge-{{ 'teal' if profile.spending == 'High' else 'coral' if profile.spending == 'Low' else 'gold' }}">
+                {{ profile.spending }}
+              </span>
+            </td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">{{ profile.age_group }}</td>
+            <td>{{ stat.size }}</td>
+            <td>${{ stat.mean_income }}k</td>
+            <td>{{ stat.mean_spending }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-center">
+    <a href="{{ url_for('recommendations') }}" class="btn-primary-custom">
+      Next: Marketing Recommendations <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+</div>
+{% endblock %}

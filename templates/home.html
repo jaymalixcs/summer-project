@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}SegmentIQ — Customer Segmentation Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ─── HERO ──────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <!-- Floating orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="container-xl position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-6" data-aos="fade-up">
+        <div class="hero-tag">
+          <span class="pulse-dot"></span> Live Analytics Platform
+        </div>
+
+        <h1 class="hero-title">
+          Smart <span class="gradient-text">Customer</span><br/>
+          Segmentation<br/>
+          <span style="color:var(--text-secondary);font-size:0.55em;font-weight:400;letter-spacing:0;">
+            Powered by K-Means Clustering
+          </span>
+        </h1>
+
+        <p class="hero-description">
+          Unlock actionable customer insights from the Mall Customers dataset using
+          machine learning. Segment customers by behaviour, identify patterns, and
+          drive targeted marketing strategies — all in one premium dashboard.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{{ url_for('dashboard') }}" class="btn-primary-custom">
+            <i class="bi bi-bar-chart-fill"></i> Explore Dashboard
+          </a>
+          <a href="{{ url_for('predict') }}" class="btn-secondary-custom">
+            <i class="bi bi-magic"></i> Predict Customer
+          </a>
+        </div>
+
+        <!-- Quick stat row -->
+        <div class="hero-stats" data-aos="fade-up" data-aos-delay="200">
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="{{ total_customers }}">0</div>
+            <div class="hero-stat-label">Customers</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="{{ n_clusters }}">0</div>
+            <div class="hero-stat-label">Segments</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="{{ n_features }}">0</div>
+            <div class="hero-stat-label">Features</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" data-count="{{ silhouette }}">0</div>
+            <div class="hero-stat-label">Silhouette Score</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="col-lg-6 mt-5 mt-lg-0 d-flex justify-content-center" data-aos="fade-in" data-aos-delay="300">
+        <div style="width:100%;max-width:480px;">
+          <!-- Visual card representing segments -->
+          <div class="glass-card" style="border-radius:24px;padding:32px;">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div style="width:10px;height:10px;border-radius:50%;background:#FF6B6B;box-shadow:0 0 8px rgba(255,107,107,0.6)"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:#FFD166;box-shadow:0 0 8px rgba(255,209,102,0.6)"></div>
+              <div style="width:10px;height:10px;border-radius:50%;background:#00D4AA;box-shadow:0 0 8px rgba(0,212,170,0.6)"></div>
+              <span style="font-size:0.78rem;color:var(--text-muted);margin-left:auto;">Customer Segments</span>
+            </div>
+
+            <!-- Segment visual cards -->
+            {% set segments = [
+              ("🏦", "Careful Spenders",  "High Income · Low Spending",  "#4FC3F7"),
+              ("🛒", "Budget Shoppers",   "Low Income · Low Spending",   "#FF8A65"),
+              ("⚡", "Impulsive Buyers",  "Low Income · High Spending",  "#CE93D8"),
+              ("🎯", "Target Customers",  "High Income · High Spending", "#81C784"),
+              ("📊", "Average Customers", "Mid Income · Mid Spending",   "#FFD54F"),
+            ] %}
+            {% for icon, name, desc, color in segments %}
+            <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+              <div style="width:40px;height:40px;border-radius:10px;background:{{ color }}22;border:1px solid {{ color }}44;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">{{ icon }}</div>
+              <div>
+                <div style="font-weight:600;font-size:0.88rem;color:var(--text-primary);">{{ name }}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">{{ desc }}</div>
+              </div>
+              <div style="margin-left:auto;">
+                <div style="width:8px;height:8px;border-radius:50%;background:{{ color }};box-shadow:0 0 6px {{ color }}99;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── OBJECTIVE SECTION ─────────────────────────────────────────────────── -->
+<section class="page-section" style="padding:80px 0;">
+  <div class="container-xl">
+    <div class="text-center mb-5" data-aos="fade-up">
+      <div class="badge-violet mb-3">Project Objective</div>
+      <h2 style="font-size:2rem;">What This Dashboard Does</h2>
+      <p class="text-muted mt-2" style="max-width:600px;margin:0 auto;">
+        A complete end-to-end customer analytics pipeline — from raw data to actionable insights.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% set features = [
+        ("🔍", "Exploratory Data Analysis",  "Comprehensive step-by-step EDA with shape, dtypes, null checks, outliers, distributions, and correlations.", "var(--gradient-violet)"),
+        ("🧹", "Data Cleaning",              "Remove duplicates, handle missing values, encode categoricals, and validate data types for a clean feature set.", "var(--gradient-teal)"),
+        ("⚙️", "K-Means Clustering",         "Apply StandardScaler + K-Means with Elbow Method and Silhouette Score to find the optimal number of segments.", "var(--gradient-coral)"),
+        ("📊", "Interactive Visualizations", "Plotly-powered histograms, scatter plots, heatmaps, cluster plots, and radar charts — all fully interactive.", "var(--gradient-gold)"),
+        ("🧠", "Cluster Interpretation",     "Profile each customer segment with income, spending, age, and gender patterns for business decision-making.", "var(--gradient-violet)"),
+        ("📣", "Marketing Recommendations",  "Practical, cluster-specific marketing strategies — loyalty programmes, targeted discounts, VIP offers, and more.", "var(--gradient-teal)"),
+        ("🔮", "Live Prediction",            "Enter any customer's data and get their predicted segment instantly, with results saved to a SQLite database.", "var(--gradient-coral)"),
+        ("📈", "Executive Dashboard",        "Monitor cluster health, customer distribution, and key segmentation metrics from one analytics view.", "var(--gradient-gold)"),
+      ] %}
+      {% for icon, title, desc, gradient in features %}
+      <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 60 }}">
+        <div class="glass-card h-100">
+          <div style="font-size:2rem;margin-bottom:16px;">{{ icon }}</div>
+          <h4 style="font-size:1rem;font-weight:700;margin-bottom:10px;">{{ title }}</h4>
+          <p style="font-size:0.84rem;color:var(--text-muted);margin:0;line-height:1.7;">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ─── TECH STACK ────────────────────────────────────────────────────────── -->
+<section style="padding:60px 0;background:rgba(255,255,255,0.015);border-top:1px solid var(--glass-border);border-bottom:1px solid var(--glass-border);">
+  <div class="container-xl">
+    <div class="text-center mb-4">
+      <h3 style="font-size:1rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);">Technology Stack</h3>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      {% for tech in ["Python 3.11", "Flask 3.0", "Pandas", "NumPy", "Scikit-learn", "Plotly", "Matplotlib", "Seaborn", "Bootstrap 5", "SQLite"] %}
+      <span class="badge-violet" style="font-size:0.8rem;padding:8px 16px;">{{ tech }}</span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ─── WORKFLOW OVERVIEW ─────────────────────────────────────────────────── -->
+<section class="page-section">
+  <div class="container-xl">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5" data-aos="fade-up">
+        <div class="badge-teal mb-3">Workflow</div>
+        <h2 style="font-size:2rem;margin-bottom:16px;">Step-by-Step<br><span class="gradient-text">Pipeline</span></h2>
+        <p class="text-muted">
+          The entire machine learning workflow is implemented transparently —
+          every step explained with code, theory, and visualisations.
+        </p>
+        <a href="{{ url_for('eda') }}" class="btn-primary-custom mt-4">
+          <i class="bi bi-arrow-right-circle"></i> Start with EDA
+        </a>
+      </div>
+      <div class="col-lg-7" data-aos="fade-up" data-aos-delay="150">
+        {% set steps = [
+          ("1", "Load & Inspect Dataset",   "Load Mall_Customers.csv, check shape, dtypes, and missing values."),
+          ("2", "Exploratory Data Analysis","Distributions, outliers, correlations, and gender analysis."),
+          ("3", "Data Cleaning",            "Remove duplicates, encode gender, drop CustomerID."),
+          ("4", "Feature Scaling",          "StandardScaler on Annual Income and Spending Score."),
+          ("5", "Elbow + Silhouette",       "Determine optimal K using WCSS and silhouette scores."),
+          ("6", "K-Means Clustering",       "Fit final model with K=5, assign cluster labels."),
+          ("7", "Interpret & Recommend",    "Profile clusters and generate marketing strategies."),
+        ] %}
+        {% for num, title, desc in steps %}
+        <div class="workflow-step" data-aos="fade-up" data-aos-delay="{{ loop.index * 80 }}">
+          {% if not loop.last %}<div class="step-connector"></div>{% endif %}
+          <div class="step-number">{{ num }}</div>
+          <div class="step-content glass-card" style="padding:18px 22px;margin:0;">
+            <div class="step-title">{{ title }}</div>
+            <p style="font-size:0.84rem;color:var(--text-muted);margin:0;">{{ desc }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ───────────────────────────────────────────────────────────────── -->
+<section style="padding:80px 0;text-align:center;" data-aos="fade-up">
+  <div class="container-xl">
+    <div class="glass-card" style="max-width:680px;margin:0 auto;padding:56px 40px;border-color:rgba(108,99,255,0.2);">
+      <h2 style="font-size:2rem;margin-bottom:16px;">Ready to Explore?</h2>
+      <p class="text-muted mb-4">
+        Dive into the full analytics pipeline or try predicting a new customer's segment right now.
+      </p>
+      <div class="d-flex flex-wrap gap-3 justify-content-center">
+        <a href="{{ url_for('dashboard') }}" class="btn-primary-custom">
+          <i class="bi bi-graph-up"></i> Go to Dashboard
+        </a>
+        <a href="{{ url_for('predict') }}" class="btn-secondary-custom">
+          <i class="bi bi-person-plus"></i> Predict New Customer
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

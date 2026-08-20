@@ -17,7 +17,7 @@
     <div class="col-md-6" data-aos="fade-up">
       <div class="chart-container">
         <div class="chart-title">Age Distribution</div>
-        <div id="chart-age" data-chart-json='{{ charts.age_hist | safe }}' style="height:300px;"></div>
+        <div id="chart-age" data-chart-json='{{ charts.age_hist }}' style="height:300px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           Most customers are between 25–45 years old. The distribution is slightly right-skewed,
           indicating the mall attracts a younger-to-middle-age demographic.
@@ -27,7 +27,7 @@
     <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
       <div class="chart-container">
         <div class="chart-title">Annual Income Distribution</div>
-        <div id="chart-income" data-chart-json='{{ charts.income_hist | safe }}' style="height:300px;"></div>
+        <div id="chart-income" data-chart-json='{{ charts.income_hist }}' style="height:300px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           Income ranges from $15k to $137k. The peak is around $60k–$70k,
           suggesting a predominantly middle-income customer base.
@@ -41,7 +41,7 @@
     <div class="col-md-6" data-aos="fade-up">
       <div class="chart-container">
         <div class="chart-title">Spending Score Distribution</div>
-        <div id="chart-spending" data-chart-json='{{ charts.spending_hist | safe }}' style="height:300px;"></div>
+        <div id="chart-spending" data-chart-json='{{ charts.spending_hist }}' style="height:300px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           Spending scores are fairly uniformly distributed with slight peaks at both extremes,
           suggesting two distinct spending personalities — frugal and impulsive.
@@ -51,7 +51,7 @@
     <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
       <div class="chart-container">
         <div class="chart-title">Gender Distribution</div>
-        <div id="chart-gender" data-chart-json='{{ charts.gender_pie | safe }}' style="height:300px;"></div>
+        <div id="chart-gender" data-chart-json='{{ charts.gender_pie }}' style="height:300px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           The dataset has slightly more female customers than male, which may reflect
           shopping centre demographic trends.
@@ -65,7 +65,7 @@
     <div class="col-12" data-aos="fade-up">
       <div class="chart-container">
         <div class="chart-title">Boxplots — Outlier Detection</div>
-        <div id="chart-box" data-chart-json='{{ charts.boxplots | safe }}' style="height:340px;"></div>
+        <div id="chart-box" data-chart-json='{{ charts.boxplots }}' style="height:340px;"></div>
         <div class="info-box mt-3">
           <strong>Reading the boxplot:</strong> The box spans Q1–Q3 (IQR). Whiskers extend to 1.5×IQR.
           Individual points beyond whiskers are outliers. This dataset has very few outliers —
@@ -80,7 +80,7 @@
     <div class="col-md-6" data-aos="fade-up">
       <div class="chart-container">
         <div class="chart-title">Age vs Spending Score</div>
-        <div id="chart-age-spending" data-chart-json='{{ charts.age_vs_spending | safe }}' style="height:340px;"></div>
+        <div id="chart-age-spending" data-chart-json='{{ charts.age_vs_spending }}' style="height:340px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           Younger customers (18–35) show higher spending scores on average. There is a weak
           negative correlation between age and spending score.
@@ -90,7 +90,7 @@
     <div class="col-md-6" data-aos="fade-up" data-aos-delay="80">
       <div class="chart-container">
         <div class="chart-title">Annual Income vs Spending Score</div>
-        <div id="chart-income-spending" data-chart-json='{{ charts.income_vs_spending | safe }}' style="height:340px;"></div>
+        <div id="chart-income-spending" data-chart-json='{{ charts.income_vs_spending }}' style="height:340px;"></div>
         <p class="mt-3" style="font-size:0.82rem;color:var(--text-muted);">
           This is the <strong style="color:var(--text-primary);">key plot</strong> for clustering.
           Five distinct groups are visually apparent — this confirms K=5 is appropriate.
@@ -104,7 +104,7 @@
     <div class="col-12" data-aos="fade-up">
       <div class="chart-container">
         <div class="chart-title">Correlation Heatmap</div>
-        <div id="chart-heatmap" data-chart-json='{{ charts.heatmap | safe }}' style="height:380px;"></div>
+        <div id="chart-heatmap" data-chart-json='{{ charts.heatmap }}' style="height:380px;"></div>
         <div class="row g-3 mt-3">
           <div class="col-md-4">
             <div class="info-box" style="margin:0;">

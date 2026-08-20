@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Feature Scaling — SegmentIQ{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="container-xl">
+    <div class="breadcrumb-custom"><a href="{{ url_for('home') }}">Home</a><span>/</span><span>Feature Scaling</span></div>
+    <div class="badge-violet mb-3">Step 4</div>
+    <h1>⚖️ Feature <span class="gradient-text">Scaling</span></h1>
+    <p>Why scaling matters for K-Means and how StandardScaler works.</p>
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+  <div class="row g-4">
+
+    <!-- Concept explanation -->
+    <div class="col-lg-6" data-aos="fade-up">
+      <div class="glass-card h-100">
+        <div class="section-title">❓ Why Scale Features?</div>
+        <div class="section-divider"></div>
+        <p style="font-size:0.9rem;line-height:1.9;color:var(--text-secondary);">
+          K-Means clustering uses <strong style="color:var(--text-primary);">Euclidean distance</strong>
+          to measure similarity between customers. If features are on different scales,
+          the algorithm will be biased towards the feature with the largest range.
+        </p>
+        <div class="info-box mt-3">
+          <strong>Example (without scaling):</strong><br>
+          Annual Income ranges from 15 to 137 (range = 122).<br>
+          Spending Score ranges from 1 to 99 (range = 98).<br>
+          <br>
+          A difference of 10 in Income contributes the same distance as a difference of 10 in
+          Spending Score — which may not reflect actual business similarity.
+        </div>
+        <div class="success-box mt-3">
+          <strong>Solution:</strong> StandardScaler transforms each feature to <strong>mean=0, std=1</strong>,
+          making all features contribute equally to distance calculations.
+        </div>
+      </div>
+    </div>
+
+    <!-- Formula card -->
+    <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+      <div class="glass-card h-100">
+        <div class="section-title">📐 StandardScaler Formula</div>
+        <div class="section-divider"></div>
+        <div style="text-align:center;padding:30px;background:rgba(108,99,255,0.08);border-radius:12px;margin-bottom:20px;">
+          <div style="font-size:2rem;font-family:'Courier New',monospace;color:var(--violet-light);">
+            z = (x − μ) / σ
+          </div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-top:12px;">
+            z = scaled value &nbsp;·&nbsp; x = original value &nbsp;·&nbsp; μ = mean &nbsp;·&nbsp; σ = standard deviation
+          </div>
+        </div>
+        <p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.8;">
+          After scaling: mean becomes <span class="badge-teal">0</span> and
+          standard deviation becomes <span class="badge-violet">1</span> for each feature.
+          Values are unitless and directly comparable.
+        </p>
+        <div class="code-block mt-3">
+          <span class="code-lang-badge">Python</span>
+          <span class="line-number">1</span> <span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler<br>
+          <span class="line-number">2</span> X = df[[<span class="string">'Annual_Income'</span>, <span class="string">'Spending_Score'</span>]].values<br>
+          <span class="line-number">3</span> scaler = <span class="class-name">StandardScaler</span>()<br>
+          <span class="line-number">4</span> X_scaled = scaler.<span class="function">fit_transform</span>(X)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features selected -->
+  <div class="glass-card mt-4 mb-4" data-aos="fade-up">
+    <div class="section-title">🎯 Features Selected for Clustering</div>
+    <div class="section-divider"></div>
+    <div class="row g-4">
+      {% for col in feature_cols %}
+      <div class="col-md-6">
+        <div class="glass-card" style="margin:0;padding:24px;border-color:rgba(108,99,255,0.25);">
+          <div style="font-size:1.4rem;margin-bottom:8px;">{{ "💰" if "Income" in col else "🛍️" }}</div>
+          <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">{{ col.replace("_"," ") }}</div>
+          <p style="font-size:0.84rem;color:var(--text-muted);margin:0;">
+            {% if "Income" in col %}
+            Annual income in thousands of dollars. Range: 15k–137k. Strong economic indicator.
+            {% else %}
+            Mall-assigned spending behaviour score (1=low, 100=high). Captures buying habits.
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="info-box mt-4">
+      <strong>Why only 2 features?</strong> Annual Income and Spending Score create clear, interpretable
+      clusters in 2D space. Age adds noise to cluster separation in this dataset, and Gender alone
+      doesn't distinguish economic behaviour.
+    </div>
+  </div>
+
+  <!-- Before / After scaling table -->
+  <div class="glass-card mb-5" data-aos="fade-up">
+    <div class="section-title">🔄 Before vs After Scaling — First 8 Rows</div>
+    <div class="section-divider"></div>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <h6 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Original Values</h6>
+        <div class="table-wrapper">
+          <table class="table-custom">
+            <thead><tr><th>#</th><th>Annual Income</th><th>Spending Score</th></tr></thead>
+            <tbody>
+              {% for row in raw_vals %}
+              <tr><td>{{ loop.index }}</td><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 style="color:var(--text-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Scaled Values (z-score)</h6>
+        <div class="table-wrapper">
+          <table class="table-custom">
+            <thead><tr><th>#</th><th>Annual Income (z)</th><th>Spending Score (z)</th></tr></thead>
+            <tbody>
+              {% for row in scaled_vals %}
+              <tr><td>{{ loop.index }}</td><td style="color:var(--teal);">{{ row[0] }}</td><td style="color:var(--teal);">{{ row[1] }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="warning-box mt-4">
+      <strong>Note:</strong> Negative z-scores indicate values below the mean. Positive z-scores indicate above mean.
+      K-Means now treats distance equally across both features.
+    </div>
+  </div>
+
+  <div class="text-center">
+    <a href="{{ url_for('elbow') }}" class="btn-primary-custom">
+      Next: Elbow Method <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+</div>
+{% endblock %}

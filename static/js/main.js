@@ -105,7 +105,9 @@ function initPlotlyCharts() {
         el,
         figData.data,
         {
-          ...figData.layout
+          ...figData.layout,
+          responsive: true,
+          useResizeHandler: true,
         },
         {
           displayModeBar: true,

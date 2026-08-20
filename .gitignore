@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Local environments and secrets
+.venv/
+venv/
+env/
+.env
+
+# Local tooling
+.vscode/
+.matplotlib/
+
+# Generated model and database files
+models/*.pkl
+models/*.joblib
+models/*.db
+
+# Generated outputs and temporary files
+output/
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
