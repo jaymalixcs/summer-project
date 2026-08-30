@@ -19,13 +19,19 @@ else:
 
 
 # ─── Cluster name mapping ─────────────────────────────────────────────────────
-CLUSTER_NAMES = {
+# See utils/recommendations.CLUSTER_ID_REMAP for the full explanation: the
+# persona names below are fixed personas, but which numeric K-Means
+# cluster_id each one actually belongs to depends on the data, so we
+# remap here too rather than assuming cluster_id 0 = "Careful Spenders".
+_PERSONA_BY_CONTENT_KEY = {
     0: "Careful Spenders",
     1: "Budget Shoppers",
     2: "Impulsive Buyers",
     3: "Target Customers",
     4: "Average Customers",
 }
+_CLUSTER_ID_REMAP = {0: 4, 1: 3, 2: 2, 3: 0, 4: 1}
+CLUSTER_NAMES = {cid: _PERSONA_BY_CONTENT_KEY[content_key] for cid, content_key in _CLUSTER_ID_REMAP.items()}
 
 
 # ─── 1. Initialise Database ───────────────────────────────────────────────────

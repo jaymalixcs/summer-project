@@ -5,18 +5,24 @@ Data loading, cleaning, and feature scaling utilities.
 
 Every function is documented step-by-step so the code can be used directly
 in project documentation.
+
+NOTE ON SIMPLICITY: earlier versions of this file saved the fitted scaler
+to a .pkl file on disk with joblib, so the /predict route could reload it
+later. That added complexity for no real benefit — fitting a StandardScaler
+on 200 rows takes a fraction of a millisecond, and serverless hosts like
+Vercel have a READ-ONLY filesystem (except /tmp), so writing model files
+next to the code breaks in production. Instead, we simply keep the fitted
+scaler object in memory (inside the pipeline dict) and reuse it directly.
 """
 
 import os
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-import joblib
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH  = os.path.join(BASE_DIR, "data", "Mall_Customers.csv")
-MODEL_DIR  = os.path.join(BASE_DIR, "models")
 
 
 # ─── 1. Load Data ─────────────────────────────────────────────────────────────
@@ -132,7 +138,10 @@ def scale_features(df: pd.DataFrame) -> tuple[np.ndarray, StandardScaler]:
         2. Instantiate StandardScaler.
         3. Fit the scaler on the selected data.
         4. Transform the data into a scaled NumPy array.
-        5. Save the fitted scaler to disk for later use in prediction.
+
+    The fitted `scaler` object is returned (not saved to disk) so that the
+    /predict route can reuse the exact same fitted scaler later, straight
+    from memory, via the cached pipeline dict.
 
     Returns:
         (X_scaled, scaler)
@@ -141,10 +150,6 @@ def scale_features(df: pd.DataFrame) -> tuple[np.ndarray, StandardScaler]:
 
     scaler = StandardScaler()                 # Instantiate the scaler
     X_scaled = scaler.fit_transform(X)        # Fit and transform in one step
-
-    # Save scaler so the /predict route can use it for new customers
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    # joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
 
     return X_scaled, scaler
 

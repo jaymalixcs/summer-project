@@ -45,16 +45,15 @@ def get_silhouette():
 def get_kmeans():
     if "kmeans" not in _cache:
         from utils.clustering import fit_kmeans
-        import joblib
-        import os
         pipe = get_pipeline()
         kmeans_data = fit_kmeans(pipe["X_scaled"])
-        
-        # Load the scaler to inverse transform centroids
-        scaler = joblib.load(os.path.join("models", "scaler.pkl"))
+
+        # Convert centroids from scaled space back to original units (e.g. $ and score)
+        # using the SAME scaler object already fitted in get_pipeline() — no disk I/O.
+        scaler = pipe["scaler"]
         centroids_orig = scaler.inverse_transform(kmeans_data["centroids"])
         kmeans_data["centroids_orig"] = centroids_orig.tolist()
-        
+
         _cache["kmeans"] = kmeans_data
     return _cache["kmeans"]
 
@@ -81,13 +80,14 @@ init_db()
 # ── 1. Home ───────────────────────────────────────────────────────────────────
 @app.route("/")
 def home():
+    from utils.preprocessing import FEATURE_COLS
     pipe    = get_pipeline()
-    summary = get_cluster_summary()
+    kmeans  = get_kmeans()
     return render_template("home.html",
                            total_customers=pipe["inspect_info"]["shape"][0],
-                           n_clusters=5,
-                           n_features=3,
-                           silhouette=round(get_kmeans()["silhouette"], 3))
+                           n_clusters=kmeans["k"],
+                           n_features=len(FEATURE_COLS),
+                           silhouette=round(kmeans["silhouette"], 3))
 
 
 # ── 2. Dataset Overview ───────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ def dashboard():
 def predict():
     from utils.database import save_customer, get_all_customers
     from utils.recommendations import get_all_profiles
-    from utils.clustering import predict_cluster
+    from utils.clustering import classify_new_customer
 
     result   = None
     profiles = get_all_profiles()
@@ -271,7 +271,13 @@ def predict():
             annual_income  = float(request.form.get("annual_income", 60))
             spending_score = int(request.form.get("spending_score", 50))
 
-            cluster_id = predict_cluster(annual_income, spending_score)
+            # Reuse the SAME fitted scaler + model the rest of the site already
+            # uses (from the in-memory pipeline cache) — no files to load.
+            pipe       = get_pipeline()
+            kmeans     = get_kmeans()
+            cluster_id = classify_new_customer(
+                annual_income, spending_score, pipe["scaler"], kmeans["model"]
+            )
             db_id      = save_customer(name, gender, age, annual_income,
                                        spending_score, cluster_id)
             customers  = get_all_customers()  # refresh

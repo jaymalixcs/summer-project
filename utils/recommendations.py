@@ -6,6 +6,29 @@ Cluster interpretation text and marketing recommendation data.
 Returns Python dicts/lists so Flask can render them in templates.
 """
 
+# ─── Cluster ID → persona-content remap ──────────────────────────────────────
+# IMPORTANT: K-Means does NOT guarantee that "cluster 0" will always be the
+# high-income/low-spending group, or that "cluster 3" will always be the
+# high-income/high-spending group. The actual numeric ID K-Means assigns to
+# each group depends on the data and on how the algorithm's random starting
+# points happen to land — it is essentially arbitrary.
+#
+# The dictionaries below (CLUSTER_PROFILES, RECOMMENDATIONS) describe FIXED
+# personas ("Careful Spenders", "Target Customers", etc). This remap was
+# built by actually running the pipeline, printing each cluster's real
+# mean Annual_Income / Spending_Score (see utils/clustering.get_cluster_summary),
+# and matching each one to the persona whose description fits those numbers.
+# Without this step, the labels shown in the UI could easily describe the
+# wrong group — e.g. calling a high-income/high-spending group "Budget
+# Shoppers" just because it happened to get cluster_id 1.
+CLUSTER_ID_REMAP = {
+    0: 4,  # actual cluster 0 = medium income / medium spending  -> "Average Customers"
+    1: 3,  # actual cluster 1 = high income   / high spending    -> "Target Customers"
+    2: 2,  # actual cluster 2 = low income    / high spending    -> "Impulsive Buyers"
+    3: 0,  # actual cluster 3 = high income   / low spending     -> "Careful Spenders"
+    4: 1,  # actual cluster 4 = low income    / low spending     -> "Budget Shoppers"
+}
+
 # ─── Cluster profiles (names + personas) ─────────────────────────────────────
 CLUSTER_PROFILES = {
     0: {
@@ -228,19 +251,19 @@ RECOMMENDATIONS = {
 
 def get_cluster_profile(cluster_id: int) -> dict:
     """Return the profile dict for the given cluster ID."""
-    return CLUSTER_PROFILES.get(cluster_id, {})
+    return CLUSTER_PROFILES.get(CLUSTER_ID_REMAP.get(cluster_id, cluster_id), {})
 
 
 def get_recommendations(cluster_id: int) -> dict:
     """Return the recommendations dict for the given cluster ID."""
-    return RECOMMENDATIONS.get(cluster_id, {})
+    return RECOMMENDATIONS.get(CLUSTER_ID_REMAP.get(cluster_id, cluster_id), {})
 
 
 def get_all_profiles() -> dict:
-    """Return all cluster profiles."""
-    return CLUSTER_PROFILES
+    """Return all cluster profiles, keyed by the ACTUAL K-Means cluster_id."""
+    return {cid: CLUSTER_PROFILES[content_key] for cid, content_key in CLUSTER_ID_REMAP.items()}
 
 
 def get_all_recommendations() -> dict:
-    """Return all recommendations."""
-    return RECOMMENDATIONS
+    """Return all recommendations, keyed by the ACTUAL K-Means cluster_id."""
+    return {cid: RECOMMENDATIONS[content_key] for cid, content_key in CLUSTER_ID_REMAP.items()}
